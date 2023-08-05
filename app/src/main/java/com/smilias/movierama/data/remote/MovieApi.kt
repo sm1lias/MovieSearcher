@@ -3,6 +3,7 @@ package com.smilias.movierama.data.remote
 import com.smilias.movierama.util.Constants.API_KEY
 import retrofit2.http.GET
 import retrofit2.http.Headers
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface MovieApi {
@@ -19,4 +20,8 @@ interface MovieApi {
         @Query("query") query: String,
         @Query("page") page: Int
     ): MovieListDto
+
+
+    @GET("movie/{movie_id}?append_to_response=credits")
+    suspend fun getMovieCredits(@Path("movie_id") movieId: String)
 }

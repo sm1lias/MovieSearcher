@@ -52,7 +52,7 @@ class MoviesScreenViewModel @Inject constructor(
         if (text.isBlank()) {
             movieRepository.getPopularMovies()
         } else {
-            movieRepository.searchMovies(text).debounce(500L)
+            movieRepository.searchMovies(text)
         }
     }.cachedIn(viewModelScope)
 

@@ -56,7 +56,7 @@ fun MovieItem(
                 }
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(imageVector = if (favoriteMovies.contains(movie.id.toString())) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                    contentDescription = "Favorite icons",
+                    contentDescription = "Favorite icon",
                     modifier = Modifier
                         .weight(1f)
                         .clickable { onFavoriteClick(movie.id) })

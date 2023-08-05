@@ -14,5 +14,12 @@ data class MovieDto(
     val releaseDate: String?,
     val title: String,
     @SerialName("vote_average")
-    val rating: Float
+    val rating: Float,
+    @SerialName("genres")
+    val genres: List<GenreDto>?,
+    @SerialName("overview")
+    val overview: String?,
+    @SerialName("credits")
+    val credits: CreditsDto
+
 )

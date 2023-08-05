@@ -74,6 +74,8 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     implementation ("androidx.compose.material:material-icons-extended-android:1.6.0-alpha02")
+    implementation("androidx.compose.material:material:1.4.3")
+
 
 
     implementation("androidx.core:core-ktx:1.9.0")

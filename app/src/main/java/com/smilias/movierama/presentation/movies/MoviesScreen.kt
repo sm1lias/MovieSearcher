@@ -1,6 +1,7 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package com.smilias.movierama.presentation.movies
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,15 +11,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -31,6 +34,8 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.smilias.movierama.domain.model.Movie
+import kotlinx.coroutines.time.delay
+import java.time.Duration
 
 @Composable
 internal fun MoviesRoute(
@@ -39,19 +44,27 @@ internal fun MoviesRoute(
     modifier: Modifier = Modifier,
     viewModel: MoviesScreenViewModel = hiltViewModel()
 ) {
+
     val movies = viewModel.moviePagingFlow.collectAsLazyPagingItems()
     val text by viewModel.searchText.collectAsState()
     val favoriteMovies by viewModel.favoritesMovies.collectAsState()
-    MoviesScreen(
-        onMovieClick = onMovieClick,
-        onShowSnackbar = onShowSnackbar,
-        onSearchValueChange = viewModel::onSearchTextChange,
-        onFavoriteClick = viewModel::onFavoriteClick,
-        favoriteMovies = favoriteMovies,
-        modifier = modifier,
-        movies = movies,
-        text = text
-    )
+
+    val pullRefreshState =
+        rememberPullRefreshState(refreshing = false, onRefresh = { movies.refresh() })
+
+    Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
+        MoviesScreen(
+            onMovieClick = onMovieClick,
+            onShowSnackbar = onShowSnackbar,
+            onSearchValueChange = viewModel::onSearchTextChange,
+            onFavoriteClick = viewModel::onFavoriteClick,
+            favoriteMovies = favoriteMovies,
+            modifier = modifier,
+            movies = movies,
+            text = text
+        )
+        PullRefreshIndicator(false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+    }
 }
 
 
@@ -73,11 +86,19 @@ internal fun MoviesScreen(
             message?.let {
                 onShowSnackbar(it, null)
             }
-
+        }
+        if (movies.loadState.append is LoadState.Error) {
+            delay(Duration.ofMillis(2000))
+            movies.retry()
         }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
+        if (movies.loadState.refresh is LoadState.Loading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
 
         Column(
             modifier = modifier
@@ -99,13 +120,6 @@ internal fun MoviesScreen(
                 },
                 placeholder = { Text(text = "Search movie") }
             ) {}
-
-//            TextField(
-//                value = text,
-//                onValueChange = onSearchValueChange,
-//                modifier = Modifier.fillMaxWidth(),
-//                placeholder = { Text(text = "Search movie") }
-//            )
             Spacer(modifier = Modifier.height(8.dp))
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -119,14 +133,11 @@ internal fun MoviesScreen(
                     }
 
                 }
-                if (movies.loadState.refresh is LoadState.Loading) {
-                    item {
-                        CircularProgressIndicator(
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                if (movies.loadState.append is LoadState.Loading) {
+                    item{
+                        CircularProgressIndicator()
                     }
                 }
-
             }
 
 
