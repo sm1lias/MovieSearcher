@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CreditsDto(
     @SerialName("cast")
-    val actors: List<PersonDto>,
+    val actors: List<PersonDto>? = null,
     @SerialName("crew")
-    val director: List<PersonDto>
+    val director: List<PersonDto>? = null
 )

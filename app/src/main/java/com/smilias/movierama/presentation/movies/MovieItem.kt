@@ -84,11 +84,10 @@ fun MovieItemPreview() {
         MovieItem(movie = Movie(
             id = 1,
             posterPath = "/rktDFPbfHfUbArZ6OOOKsXcv0Bm.jpg",
-            backgroundPath = "/adsfsafaf",
+            backgroundPath = "/random",
             releaseDate = LocalDate.now(),
             rating = 7.5F,
             title = "My movie"
-
         ), {}, {}, emptySet()
         )
     }

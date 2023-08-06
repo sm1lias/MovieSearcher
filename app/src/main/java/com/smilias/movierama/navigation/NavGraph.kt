@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.smilias.movierama.presentation.details.DetailsRoute
 import com.smilias.movierama.presentation.movies.MoviesRoute
 
 @Composable
@@ -24,7 +25,8 @@ fun SetupNavGraph(
             route = "${Screen.DetailsScreen.route}/{id}",
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) {
-//            DetailsRoute(onShowSnackbar = onShowSnackbar)
+            DetailsRoute(onShowSnackbar = onShowSnackbar,
+                onBackPressed = navController::popBackStack)
         }
     }
 }

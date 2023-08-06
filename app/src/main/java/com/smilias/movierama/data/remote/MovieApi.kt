@@ -22,6 +22,17 @@ interface MovieApi {
     ): MovieListDto
 
 
+    @Headers("Authorization: Bearer $API_KEY")
     @GET("movie/{movie_id}?append_to_response=credits")
-    suspend fun getMovieCredits(@Path("movie_id") movieId: String)
+    suspend fun getMovieWithCredits(@Path("movie_id") movieId: String): MovieDto
+
+    @Headers("Authorization: Bearer $API_KEY")
+    @GET("movie/{movie_id}/similar")
+    suspend fun getSimilarMovies(@Path("movie_id") movieId: String): MovieListDto
+
+    @Headers("Authorization: Bearer $API_KEY")
+    @GET("movie/{movie_id}/reviews")
+    suspend fun getMovieReviews(@Path("movie_id") movieId: String): ReviewListDto
+
+
 }
