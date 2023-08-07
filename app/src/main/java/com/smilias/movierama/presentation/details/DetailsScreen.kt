@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,22 +21,27 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.smilias.movierama.R
 import com.smilias.movierama.domain.model.Movie
 import com.smilias.movierama.domain.model.Review
@@ -55,6 +61,11 @@ internal fun DetailsRoute(
 ) {
     val state by viewModel.state.collectAsState()
     val favoriteMovies by viewModel.favoritesMovies.collectAsState()
+    LaunchedEffect(key1 = state.error) {
+        state.error?.let { message ->
+            onShowSnackbar(message, null)
+        }
+    }
     state.movie?.let {
         DetailsScreen(
             onShowSnackbar = onShowSnackbar,
@@ -81,135 +92,151 @@ internal fun DetailsScreen(
 
     val dimens = LocalSpacing.current
 
-    Column(modifier = modifier.verticalScroll(rememberScrollState())) {
-        Box {
-            AsyncImage(
-                model = Constants.IMAGE_URL_780 + state.movie!!.backgroundPath,
-                contentScale = ContentScale.FillWidth,
-                placeholder = painterResource(R.drawable.ic_placeholder),
-                error = painterResource(R.drawable.ic_placeholder),
-                contentDescription = state.movie.title,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-            Icon(
-                imageVector = Icons.Rounded.ArrowBack,
-                contentDescription = "Back arrow",
-                tint = Color.White,
-                modifier = Modifier
-                    .padding(dimens.spaceMedium)
-                    .size(30.dp)
-                    .align(Alignment.TopStart)
-                    .clickable { onBackPressed() }
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomStart)
-                    .padding(dimens.spaceMedium)
-            ) {
-                Text(
-                    text = state.movie.title,
-                    color = Color.White,
-                    style = MaterialTheme.typography.headlineMedium,
-                )
-                state.movie.genre?.let { genre ->
-                    Text(
-                        text = genre,
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-            }
-
+    Box(modifier = modifier.fillMaxSize()) {
+        if (state.isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
-        Column(modifier = Modifier.padding(dimens.spaceMedium)) {
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                RatingAndDate(movie = state.movie!!)
-                Icon(imageVector = if (favoriteMovies.contains(state.movie.id.toString())) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                    contentDescription = "Favorite icon",
+        Column(modifier = modifier.verticalScroll(rememberScrollState())) {
+            Box {
+                AsyncImage(
+                    model = ImageRequest.Builder(
+                        LocalContext.current
+                    ).data(Constants.IMAGE_URL_780 + state.movie!!.backgroundPath)
+                        .crossfade(1000)
+                        .build(),
+                    contentScale = ContentScale.FillWidth,
+                    error = painterResource(R.drawable.ic_placeholder),
+                    contentDescription = state.movie.title,
                     modifier = Modifier
-                        .clickable { onFavoriteClick(state.movie.id) })
+                        .fillMaxWidth()
+                )
+                Icon(
+                    imageVector = Icons.Rounded.ArrowBack,
+                    contentDescription = "Back arrow",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .padding(dimens.spaceMedium)
+                        .size(30.dp)
+                        .align(Alignment.TopStart)
+                        .clickable { onBackPressed() }
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomStart)
+                        .padding(dimens.spaceMedium)
+                ) {
+                    Text(
+                        text = state.movie.title,
+                        color = Color.White,
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+                    state.movie.genre?.let { genre ->
+                        Text(
+                            text = genre,
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                }
+
             }
-            Spacer(modifier = Modifier.height(dimens.spaceMedium))
+            Column(modifier = Modifier.padding(dimens.spaceMedium)) {
 
-            state.movie?.apply {
-                overview?.let { overview ->
-                    Text(
-                        text = stringResource(id = R.string.description),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(text = overview)
-                    Spacer(modifier = Modifier.height(dimens.spaceMedium))
-                }
-
-                director?.let { director ->
-                    Text(
-                        text = stringResource(id = R.string.director),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(text = director)
-                    Spacer(modifier = Modifier.height(dimens.spaceMedium))
-                }
-
-                actors?.let { actors ->
-                    Text(
-                        text = stringResource(id = R.string.cast),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(text = actors.joinToString())
-
-                    Spacer(modifier = Modifier.height(dimens.spaceMedium))
-
-                }
-
-                similarMovies?.let { similarMovies ->
-                    Text(
-                        text = stringResource(id = R.string.similar_movies),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(dimens.spaceSmall),
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RatingAndDate(movie = state.movie!!)
+                    Icon(
+                        imageVector = if (favoriteMovies.contains(state.movie.id.toString())) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                        contentDescription = "Favorite icon",
                         modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        items(similarMovies.size) { index ->
-                            val movie = similarMovies[index]
-                            Card(
-                                modifier = modifier,
-                                elevation = CardDefaults.cardElevation(4.dp)
-                            ) {
-                                AsyncImage(
-                                    modifier = Modifier
-                                        .wrapContentHeight()
-                                        .clickable { onSimilarMovieClick(movie.id) },
-                                    model = IMAGE_URL_500 + movie.posterPath,
-                                    contentScale = ContentScale.FillHeight,
-                                    placeholder = painterResource(R.drawable.ic_placeholder),
-                                    error = painterResource(R.drawable.ic_placeholder),
-                                    contentDescription = movie.title
-                                )
+                            .clickable { onFavoriteClick(state.movie.id) },
+                        tint = if (favoriteMovies.contains(state.movie.id.toString())) Color.Red else Color.Gray
+                    )
+                }
+                Spacer(modifier = Modifier.height(dimens.spaceMedium))
+
+                state.movie?.apply {
+                    overview?.let { overview ->
+                        Text(
+                            text = stringResource(id = R.string.description),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(text = overview)
+                        Spacer(modifier = Modifier.height(dimens.spaceMedium))
+                    }
+
+                    director?.let { director ->
+                        Text(
+                            text = stringResource(id = R.string.director),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(text = director)
+                        Spacer(modifier = Modifier.height(dimens.spaceMedium))
+                    }
+
+                    actors?.let { actors ->
+                        Text(
+                            text = stringResource(id = R.string.cast),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(text = actors.joinToString())
+
+                        Spacer(modifier = Modifier.height(dimens.spaceMedium))
+
+                    }
+
+                    similarMovies?.let { similarMovies ->
+                        Text(
+                            text = stringResource(id = R.string.similar_movies),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(dimens.spaceSmall),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            items(similarMovies.size) { index ->
+                                val movie = similarMovies[index]
+                                Card(
+                                    modifier = modifier,
+                                    elevation = CardDefaults.cardElevation(4.dp)
+                                ) {
+                                    AsyncImage(
+                                        modifier = Modifier
+                                            .wrapContentHeight()
+                                            .clickable { onSimilarMovieClick(movie.id) },
+                                        model = IMAGE_URL_500 + movie.posterPath,
+                                        contentScale = ContentScale.FillHeight,
+                                        placeholder = painterResource(R.drawable.ic_placeholder),
+                                        error = painterResource(R.drawable.ic_placeholder),
+                                        contentDescription = movie.title
+                                    )
+                                }
                             }
                         }
-                    }
-                    Spacer(modifier = Modifier.height(dimens.spaceMedium))
-                }
-
-                reviews?.let { reviews ->
-                    Text(
-                        text = stringResource(id = R.string.reviews),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    reviews.forEach { review ->
-                        Text(text = review.author)
-                        Text(text = review.review)
                         Spacer(modifier = Modifier.height(dimens.spaceMedium))
+                    }
+
+                    reviews?.let { reviews ->
+                        Text(
+                            text = stringResource(id = R.string.reviews),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        reviews.forEach { review ->
+                            Text(text = review.author, color = Color.Gray)
+                            Text(text = review.review)
+                            Spacer(modifier = Modifier.height(dimens.spaceMedium))
+                        }
                     }
                 }
             }

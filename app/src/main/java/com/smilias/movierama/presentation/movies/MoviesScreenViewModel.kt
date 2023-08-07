@@ -47,6 +47,11 @@ class MoviesScreenViewModel @Inject constructor(
         }
     }
 
+    fun onClearClick(){
+        _state.value = _state.value.copy(searchText = "")
+        onSearchTextChange("")
+    }
+
     fun onFavoriteClick(id: Int) {
         val set: Set<String> = if (_state.value.favoriteMovies.contains(id.toString())) {
             _state.value.favoriteMovies.minus(id.toString())

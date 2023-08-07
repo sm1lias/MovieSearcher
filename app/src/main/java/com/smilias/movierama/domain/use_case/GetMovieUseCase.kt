@@ -14,7 +14,13 @@ class GetMovieUseCase @Inject constructor(
     suspend operator fun invoke(id: String): Flow<Resource<Movie>> {
         return flow {
             emit(Resource.Loading())
-            emit(movieRepository.getMovie(id))
+            emit(
+                try {
+                    movieRepository.getMovie(id)
+                } catch (e: Exception) {
+                    Resource.Error("Connection error")
+                }
+            )
         }
     }
 }

@@ -11,6 +11,7 @@ import com.smilias.movierama.data.remote.SearchMoviesPagingSource
 import com.smilias.movierama.domain.model.Movie
 import com.smilias.movierama.domain.repository.MovieRepository
 import com.smilias.movierama.util.Resource
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope

@@ -2,6 +2,7 @@
 
 package com.smilias.movierama.presentation.movies
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -44,15 +46,15 @@ internal fun MoviesRoute(
     viewModel: MoviesScreenViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-
-        MoviesScreen(
-            onMovieClick = onMovieClick,
-            onShowSnackbar = onShowSnackbar,
-            onSearchValueChange = viewModel::onSearchTextChange,
-            onFavoriteClick = viewModel::onFavoriteClick,
-            state = state,
-            modifier = modifier,
-        )
+    MoviesScreen(
+        onMovieClick = onMovieClick,
+        onShowSnackbar = onShowSnackbar,
+        onSearchValueChange = viewModel::onSearchTextChange,
+        onFavoriteClick = viewModel::onFavoriteClick,
+        onClearClick = viewModel::onClearClick,
+        state = state,
+        modifier = modifier,
+    )
 }
 
 
@@ -63,6 +65,7 @@ internal fun MoviesScreen(
     onShowSnackbar: suspend (String, String?) -> Boolean,
     modifier: Modifier = Modifier,
     onSearchValueChange: (String) -> Unit,
+    onClearClick: () -> Unit,
     onFavoriteClick: (Int) -> Unit,
     state: MoviesScreenState
 ) {
@@ -84,10 +87,12 @@ internal fun MoviesScreen(
     val pullRefreshState =
         rememberPullRefreshState(refreshing = false, onRefresh = { movies.refresh() })
 
-    Box(modifier = modifier
-        .fillMaxSize()
-        .pullRefresh(pullRefreshState)
-        .padding(dimens.spaceSmall)) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .pullRefresh(pullRefreshState)
+            .padding(dimens.spaceSmall)
+    ) {
         if (movies.loadState.refresh is LoadState.Loading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
@@ -111,6 +116,17 @@ internal fun MoviesScreen(
                         contentDescription = "Search icon"
                     )
                 },
+                trailingIcon = {
+                    if (state.searchText.isNotEmpty()) {
+                        Icon(
+                            imageVector = Icons.Rounded.Clear,
+                            contentDescription = "Clear icon",
+                            modifier = Modifier.clickable {
+                                onClearClick()
+                            }
+                        )
+                    }
+                },
                 placeholder = { Text(text = "Search movie") }
             ) {}
             Spacer(modifier = Modifier.height(8.dp))
@@ -122,12 +138,17 @@ internal fun MoviesScreen(
                 items(movies.itemCount) { index ->
                     val movie = movies[index]
                     if (movie != null) {
-                        MovieItem(movie = movie, onMovieClick, onFavoriteClick, state.favoriteMovies)
+                        MovieItem(
+                            movie = movie,
+                            onMovieClick,
+                            onFavoriteClick,
+                            state.favoriteMovies
+                        )
                     }
 
                 }
                 if (movies.loadState.append is LoadState.Loading) {
-                    item{
+                    item {
                         CircularProgressIndicator()
                     }
                 }

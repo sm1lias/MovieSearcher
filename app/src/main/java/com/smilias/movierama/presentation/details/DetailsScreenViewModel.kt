@@ -46,7 +46,7 @@ class DetailsScreenViewModel @Inject constructor(
            viewModelScope.launch {
                getMovieUseCase(id.toString()).collect {movieResource ->
                    when (movieResource) {
-                       is Resource.Error -> {}
+                       is Resource.Error -> _state.value = DetailsScreenState(error = movieResource.message)
                        is Resource.Loading -> _state.value = DetailsScreenState(isLoading = true)
                        is Resource.Success -> _state.value = DetailsScreenState(movieResource.data)
                    }
