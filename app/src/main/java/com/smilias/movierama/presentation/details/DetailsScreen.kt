@@ -1,13 +1,11 @@
 package com.smilias.movierama.presentation.details
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,14 +14,12 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,19 +29,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.smilias.movierama.R
 import com.smilias.movierama.domain.model.Movie
 import com.smilias.movierama.domain.model.Review
 import com.smilias.movierama.presentation.common.RatingBar
 import com.smilias.movierama.ui.theme.LocalSpacing
+import com.smilias.movierama.util.Constants
+import com.smilias.movierama.util.Constants.IMAGE_URL_500
 import com.smilias.movierama.util.Util.toLowercaseAndCapitalize
 
 @Composable
@@ -87,7 +84,8 @@ internal fun DetailsScreen(
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
         Box {
             AsyncImage(
-                model = "https://image.tmdb.org/t/p/original${state.movie!!.backgroundPath}",
+                model = Constants.IMAGE_URL_780 + state.movie!!.backgroundPath,
+                contentScale = ContentScale.FillWidth,
                 placeholder = painterResource(R.drawable.ic_placeholder),
                 error = painterResource(R.drawable.ic_placeholder),
                 contentDescription = state.movie.title,
@@ -104,14 +102,26 @@ internal fun DetailsScreen(
                     .align(Alignment.TopStart)
                     .clickable { onBackPressed() }
             )
-            Text(
-                text = state.movie.title,
-                color = Color.White,
-                fontSize = 20.sp,
+            Column(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .align(Alignment.BottomStart)
                     .padding(dimens.spaceMedium)
-            )
+            ) {
+                Text(
+                    text = state.movie.title,
+                    color = Color.White,
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+                state.movie.genre?.let { genre ->
+                    Text(
+                        text = genre,
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            }
+
         }
         Column(modifier = Modifier.padding(dimens.spaceMedium)) {
 
@@ -140,15 +150,19 @@ internal fun DetailsScreen(
                 }
 
                 director?.let { director ->
-                    Text(text = stringResource(id = R.string.director),
-                        style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = stringResource(id = R.string.director),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                     Text(text = director)
                     Spacer(modifier = Modifier.height(dimens.spaceMedium))
                 }
 
                 actors?.let { actors ->
-                    Text(text = stringResource(id = R.string.cast),
-                        style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = stringResource(id = R.string.cast),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                     Text(text = actors.joinToString())
 
                     Spacer(modifier = Modifier.height(dimens.spaceMedium))
@@ -156,8 +170,10 @@ internal fun DetailsScreen(
                 }
 
                 similarMovies?.let { similarMovies ->
-                    Text(text = stringResource(id = R.string.similar_movies),
-                        style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = stringResource(id = R.string.similar_movies),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(dimens.spaceSmall),
                         modifier = Modifier
@@ -171,9 +187,10 @@ internal fun DetailsScreen(
                             ) {
                                 AsyncImage(
                                     modifier = Modifier
-                                        .height(200.dp)
+                                        .wrapContentHeight()
                                         .clickable { onSimilarMovieClick(movie.id) },
-                                    model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
+                                    model = IMAGE_URL_500 + movie.posterPath,
+                                    contentScale = ContentScale.FillHeight,
                                     placeholder = painterResource(R.drawable.ic_placeholder),
                                     error = painterResource(R.drawable.ic_placeholder),
                                     contentDescription = movie.title
@@ -185,8 +202,10 @@ internal fun DetailsScreen(
                 }
 
                 reviews?.let { reviews ->
-                    Text(text = stringResource(id = R.string.reviews),
-                        style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = stringResource(id = R.string.reviews),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                     reviews.forEach { review ->
                         Text(text = review.author)
                         Text(text = review.review)
@@ -226,6 +245,7 @@ fun DetailsScreenPreview() {
             rating = 6.5F,
             actors = listOf("Jolie", "Pitt"),
             director = "Tarantino",
+            genre = "Action, Adventure",
             reviews = listOf(Review("Google", "Best Movie for a long time")),
             overview = "One time in Hollywood One time in Hollywood One time in Hollywood One time in Hollywood One time in Hollywood "
         )

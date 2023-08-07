@@ -31,9 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.smilias.movierama.domain.model.Movie
 import com.smilias.movierama.ui.theme.LocalSpacing
 import kotlinx.coroutines.time.delay
 import java.time.Duration
@@ -45,27 +43,16 @@ internal fun MoviesRoute(
     modifier: Modifier = Modifier,
     viewModel: MoviesScreenViewModel = hiltViewModel()
 ) {
+    val state by viewModel.state.collectAsState()
 
-    val movies = viewModel.moviePagingFlow.collectAsLazyPagingItems()
-    val text by viewModel.searchText.collectAsState()
-    val favoriteMovies by viewModel.favoritesMovies.collectAsState()
-
-    val pullRefreshState =
-        rememberPullRefreshState(refreshing = false, onRefresh = { movies.refresh() })
-
-    Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
         MoviesScreen(
             onMovieClick = onMovieClick,
             onShowSnackbar = onShowSnackbar,
             onSearchValueChange = viewModel::onSearchTextChange,
             onFavoriteClick = viewModel::onFavoriteClick,
-            favoriteMovies = favoriteMovies,
+            state = state,
             modifier = modifier,
-            movies = movies,
-            text = text
         )
-        PullRefreshIndicator(false, pullRefreshState, Modifier.align(Alignment.TopCenter))
-    }
 }
 
 
@@ -75,13 +62,12 @@ internal fun MoviesScreen(
     onMovieClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     modifier: Modifier = Modifier,
-    movies: LazyPagingItems<Movie>,
-    text: String,
     onSearchValueChange: (String) -> Unit,
     onFavoriteClick: (Int) -> Unit,
-    favoriteMovies: Set<String>
+    state: MoviesScreenState
 ) {
     val dimens = LocalSpacing.current
+    val movies = state.movieList.collectAsLazyPagingItems()
     LaunchedEffect(key1 = movies.loadState) {
         if (movies.loadState.refresh is LoadState.Error) {
             val message = (movies.loadState.refresh as LoadState.Error).error.message
@@ -95,7 +81,13 @@ internal fun MoviesScreen(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize().padding(dimens.spaceSmall)) {
+    val pullRefreshState =
+        rememberPullRefreshState(refreshing = false, onRefresh = { movies.refresh() })
+
+    Box(modifier = modifier
+        .fillMaxSize()
+        .pullRefresh(pullRefreshState)
+        .padding(dimens.spaceSmall)) {
         if (movies.loadState.refresh is LoadState.Loading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
@@ -108,7 +100,7 @@ internal fun MoviesScreen(
         ) {
             SearchBar(
                 modifier = Modifier.fillMaxWidth(),
-                query = text,
+                query = state.searchText,
                 onQueryChange = onSearchValueChange,
                 onSearch = {},
                 active = false,
@@ -130,7 +122,7 @@ internal fun MoviesScreen(
                 items(movies.itemCount) { index ->
                     val movie = movies[index]
                     if (movie != null) {
-                        MovieItem(movie = movie, onMovieClick, onFavoriteClick, favoriteMovies)
+                        MovieItem(movie = movie, onMovieClick, onFavoriteClick, state.favoriteMovies)
                     }
 
                 }
@@ -143,5 +135,6 @@ internal fun MoviesScreen(
 
 
         }
+        PullRefreshIndicator(false, pullRefreshState, Modifier.align(Alignment.TopCenter))
     }
 }

@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,6 +28,7 @@ import com.smilias.movierama.R
 import com.smilias.movierama.domain.model.Movie
 import com.smilias.movierama.presentation.common.RatingBar
 import com.smilias.movierama.ui.theme.MovieRamaTheme
+import com.smilias.movierama.util.Constants.IMAGE_URL_780
 import com.smilias.movierama.util.Util.toLowercaseAndCapitalize
 import java.time.LocalDate
 
@@ -44,8 +46,9 @@ fun MovieItem(
     ) {
         Column(modifier = modifier.fillMaxSize()) {
             AsyncImage(
-                model = "https://image.tmdb.org/t/p/original${movie.backgroundPath}",
+                model = IMAGE_URL_780 + movie.backgroundPath,
                 contentDescription = movie.title,
+                contentScale = ContentScale.FillWidth,
                 placeholder = painterResource(R.drawable.ic_placeholder),
                 error = painterResource(R.drawable.ic_placeholder),
                 modifier = Modifier
@@ -71,11 +74,15 @@ fun MovieItem(
 }
 
 @Composable
-private fun RatingAndDate (movie: Movie) {
+private fun RatingAndDate(movie: Movie) {
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         RatingBar(rating = movie.rating / 2, maxRating = 5)
-        movie.releaseDate?.let {date ->
-            Text(text = "${date.dayOfMonth} ${date.month.toString().toLowercaseAndCapitalize()} ${date.year}", color = Color.Gray)
+        movie.releaseDate?.let { date ->
+            Text(
+                text = "${date.dayOfMonth} ${
+                    date.month.toString().toLowercaseAndCapitalize()
+                } ${date.year}", color = Color.Gray
+            )
         }
 
     }
