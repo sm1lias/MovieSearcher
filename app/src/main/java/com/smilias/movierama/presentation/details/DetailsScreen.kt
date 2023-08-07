@@ -39,7 +39,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.LoadState
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.smilias.movierama.R
@@ -68,7 +67,6 @@ internal fun DetailsRoute(
     }
     state.movie?.let {
         DetailsScreen(
-            onShowSnackbar = onShowSnackbar,
             onBackPressed = onBackPressed,
             onFavoriteClick = viewModel::onFavoriteClick,
             onSimilarMovieClick = onSimilarMovieClick,
@@ -81,7 +79,6 @@ internal fun DetailsRoute(
 
 @Composable
 internal fun DetailsScreen(
-    onShowSnackbar: suspend (String, String?) -> Boolean,
     onBackPressed: () -> Unit,
     onFavoriteClick: (Int) -> Unit,
     onSimilarMovieClick: (Int) -> Unit,
@@ -279,7 +276,6 @@ fun DetailsScreenPreview() {
     )
 
     DetailsScreen(
-        onShowSnackbar = { _, _ -> false },
         onBackPressed = {},
         onFavoriteClick = {},
         onSimilarMovieClick = {},

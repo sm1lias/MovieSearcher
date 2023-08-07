@@ -11,7 +11,7 @@ class GetMovieUseCase @Inject constructor(
     private val movieRepository: MovieRepository
 ) {
 
-    suspend operator fun invoke(id: String): Flow<Resource<Movie>> {
+    operator fun invoke(id: String): Flow<Resource<Movie>> {
         return flow {
             emit(Resource.Loading())
             emit(

@@ -3,7 +3,6 @@ package com.smilias.movierama.data.preferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.smilias.movierama.domain.preferences.MyPreferences
 import kotlinx.coroutines.flow.Flow
@@ -15,17 +14,17 @@ class MyPreferencesImpl @Inject constructor(
 ): MyPreferences {
 
     override fun getFavorites(): Flow<Set<String>> {
-        val FAVORITE = stringSetPreferencesKey(MyPreferences.KEY_FAVORITE)
+        val favoriteKey = stringSetPreferencesKey(MyPreferences.KEY_FAVORITE)
         return sharedPref.data.
                 map {
-                    it[FAVORITE] ?: emptySet()
+                    it[favoriteKey] ?: emptySet()
                 }
     }
 
     override suspend fun saveFavorites(list: Set<String>) {
-        val FAVORITE = stringSetPreferencesKey(MyPreferences.KEY_FAVORITE)
+        val favoriteKey = stringSetPreferencesKey(MyPreferences.KEY_FAVORITE)
         sharedPref.edit {prefs ->
-            prefs[FAVORITE] = list
+            prefs[favoriteKey] = list
         }
     }
 

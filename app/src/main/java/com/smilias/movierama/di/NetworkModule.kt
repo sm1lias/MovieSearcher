@@ -15,7 +15,6 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -48,12 +47,6 @@ object NetworkModule {
     fun provideMovieApi(retrofit: Retrofit): MovieApi {
         return retrofit.create(MovieApi::class.java)
     }
-
-//    @Provides
-//    @Singleton
-//    fun provideMoviePagingSource(movieApi: MovieApi): PagingSource<Int, Movie>{
-//        return MoviePagingSource(movieApi)
-//    }
 
     @Provides
     @Singleton

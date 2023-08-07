@@ -24,7 +24,6 @@ interface MovieApi {
         @Query("page") page: Int
     ): MovieListDto
 
-
     @Headers("Authorization: Bearer $API_KEY")
     @GET("movie/{movie_id}?append_to_response=credits")
     suspend fun getMovieWithCredits(@Path("movie_id") movieId: String): MovieDto

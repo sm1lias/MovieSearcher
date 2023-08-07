@@ -1,25 +1,15 @@
 package com.smilias.movierama.presentation.details
 
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smilias.movierama.domain.preferences.MyPreferences
-import com.smilias.movierama.domain.repository.MovieRepository
 import com.smilias.movierama.domain.use_case.GetMovieUseCase
 import com.smilias.movierama.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -42,22 +32,24 @@ class DetailsScreenViewModel @Inject constructor(
         )
 
     init {
-       savedStateHandle.get<Int>("id").let {id ->
-           viewModelScope.launch {
-               getMovieUseCase(id.toString()).collect {movieResource ->
-                   when (movieResource) {
-                       is Resource.Error -> _state.value = DetailsScreenState(error = movieResource.message)
-                       is Resource.Loading -> _state.value = DetailsScreenState(isLoading = true)
-                       is Resource.Success -> _state.value = DetailsScreenState(movieResource.data)
-                   }
-               }
+        val id: Int? = savedStateHandle["id"]
+        id?.let {
+            viewModelScope.launch {
+                getMovieUseCase(id.toString()).collect { movieResource ->
+                    when (movieResource) {
+                        is Resource.Error -> _state.value =
+                            DetailsScreenState(error = movieResource.message)
 
-           }
-       }
+                        is Resource.Loading -> _state.value = DetailsScreenState(isLoading = true)
+                        is Resource.Success -> _state.value = DetailsScreenState(movieResource.data)
+                    }
+                }
+            }
+        }
     }
 
-    fun onFavoriteClick(id: Int){
-        val set: Set<String> = if (favoritesMovies.value.contains(id.toString())){
+    fun onFavoriteClick(id: Int) {
+        val set: Set<String> = if (favoritesMovies.value.contains(id.toString())) {
             favoritesMovies.value.minus(id.toString())
         } else {
             favoritesMovies.value.plus(id.toString())

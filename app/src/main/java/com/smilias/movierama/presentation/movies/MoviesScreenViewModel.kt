@@ -7,8 +7,6 @@ import com.smilias.movierama.domain.preferences.MyPreferences
 import com.smilias.movierama.domain.use_case.GetPopularMoviesUseCase
 import com.smilias.movierama.domain.use_case.SearchMoviesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
