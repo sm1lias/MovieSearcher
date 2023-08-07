@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">MovieRama</string>
+    <string name="description">DESCRIPTION</string>
+    <string name="director">DIRECTOR</string>
+    <string name="cast">CAST</string>
+    <string name="similar_movies">SIMILAR MOVIES</string>
+    <string name="reviews">REVIEWS</string>
 </resources>

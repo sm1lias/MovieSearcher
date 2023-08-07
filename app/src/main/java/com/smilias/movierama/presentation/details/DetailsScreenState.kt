@@ -4,5 +4,6 @@ import com.smilias.movierama.domain.model.Movie
 
 data class DetailsScreenState(
     val movie: Movie? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isFavorable: Boolean = false
 )

@@ -26,7 +26,8 @@ fun SetupNavGraph(
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) {
             DetailsRoute(onShowSnackbar = onShowSnackbar,
-                onBackPressed = navController::popBackStack)
+                onBackPressed = navController::popBackStack,
+                onSimilarMovieClick = navController::navigateToDetailsScreen)
         }
     }
 }

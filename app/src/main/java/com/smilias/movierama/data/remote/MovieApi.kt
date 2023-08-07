@@ -1,5 +1,8 @@
 package com.smilias.movierama.data.remote
 
+import com.smilias.movierama.data.remote.dto.MovieDto
+import com.smilias.movierama.data.remote.dto.MovieListDto
+import com.smilias.movierama.data.remote.dto.ReviewListDto
 import com.smilias.movierama.util.Constants.API_KEY
 import retrofit2.http.GET
 import retrofit2.http.Headers

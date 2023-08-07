@@ -34,6 +34,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.smilias.movierama.domain.model.Movie
+import com.smilias.movierama.ui.theme.LocalSpacing
 import kotlinx.coroutines.time.delay
 import java.time.Duration
 
@@ -80,6 +81,7 @@ internal fun MoviesScreen(
     onFavoriteClick: (Int) -> Unit,
     favoriteMovies: Set<String>
 ) {
+    val dimens = LocalSpacing.current
     LaunchedEffect(key1 = movies.loadState) {
         if (movies.loadState.refresh is LoadState.Error) {
             val message = (movies.loadState.refresh as LoadState.Error).error.message
@@ -93,7 +95,7 @@ internal fun MoviesScreen(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize().padding(dimens.spaceSmall)) {
         if (movies.loadState.refresh is LoadState.Loading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
@@ -103,7 +105,6 @@ internal fun MoviesScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(16.dp)
         ) {
             SearchBar(
                 modifier = Modifier.fillMaxWidth(),

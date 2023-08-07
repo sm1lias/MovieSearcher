@@ -19,9 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.smilias.movierama.R
 import com.smilias.movierama.domain.model.Movie
 import com.smilias.movierama.presentation.common.RatingBar
 import com.smilias.movierama.ui.theme.MovieRamaTheme
@@ -44,6 +46,8 @@ fun MovieItem(
             AsyncImage(
                 model = "https://image.tmdb.org/t/p/original${movie.backgroundPath}",
                 contentDescription = movie.title,
+                placeholder = painterResource(R.drawable.ic_placeholder),
+                error = painterResource(R.drawable.ic_placeholder),
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
