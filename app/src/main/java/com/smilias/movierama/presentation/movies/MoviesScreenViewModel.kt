@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+
 package com.smilias.movierama.presentation.movies
 
 import androidx.lifecycle.ViewModel
@@ -7,6 +9,10 @@ import com.smilias.movierama.domain.preferences.MyPreferences
 import com.smilias.movierama.domain.use_case.GetPopularMoviesUseCase
 import com.smilias.movierama.domain.use_case.SearchMoviesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -21,33 +27,36 @@ class MoviesScreenViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(MoviesScreenState())
     val state: StateFlow<MoviesScreenState> = _state
+    private var job: Job? = null
+
 
     init {
         viewModelScope.launch {
             prefs.getFavorites()
                 .collect { list ->
-                    _state.value = _state.value.copy(favoriteMovies = list)
+                    _state.value = state.value.copy(favoriteMovies = list)
                 }
         }
         onSearchTextChange("")
     }
 
     fun onSearchTextChange(text: String) {
-        _state.value = _state.value.copy(searchText = text)
-        viewModelScope.launch {
+        _state.value = state.value.copy(searchText = text)
+        job?.cancel()
+        job = viewModelScope.launch {
+            delay(300)
             if (text.isBlank()) {
                 _state.value =
-                    _state.value.copy(movieList = getPopularMoviesUseCase().cachedIn(this))
+                    state.value.copy(movieList = getPopularMoviesUseCase().cachedIn(this))
             } else {
                 _state.value =
-                    _state.value.copy(movieList = searchMoviesUseCase(text).cachedIn(this))
+                    state.value.copy(movieList = searchMoviesUseCase(text).cachedIn(this))
             }
         }
     }
 
-    fun onClearClick(){
+    fun onClearClick() {
         _state.value = _state.value.copy(searchText = "")
-        onSearchTextChange("")
     }
 
     fun onFavoriteClick(id: Int) {

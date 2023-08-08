@@ -7,6 +7,6 @@ import kotlinx.coroutines.flow.emptyFlow
 
 data class MoviesScreenState(
     val movieList: Flow<PagingData<Movie>> = emptyFlow(),
-    val searchText: String= "",
+    val searchText: String = "",
     val favoriteMovies: Set<String> = emptySet(),
-    )
+)

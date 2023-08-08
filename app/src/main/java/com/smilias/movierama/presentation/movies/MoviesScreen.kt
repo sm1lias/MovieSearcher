@@ -85,7 +85,9 @@ internal fun MoviesScreen(
     }
 
     val pullRefreshState =
-        rememberPullRefreshState(refreshing = false, onRefresh = { movies.refresh() })
+        rememberPullRefreshState(
+            refreshing = movies.loadState.refresh is LoadState.Loading,
+            onRefresh = { movies.refresh() })
 
     Box(
         modifier = modifier
@@ -93,11 +95,6 @@ internal fun MoviesScreen(
             .pullRefresh(pullRefreshState)
             .padding(dimens.spaceSmall)
     ) {
-        if (movies.loadState.refresh is LoadState.Loading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
 
         Column(
             modifier = modifier
@@ -156,6 +153,10 @@ internal fun MoviesScreen(
 
 
         }
-        PullRefreshIndicator(false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+        PullRefreshIndicator(
+            movies.loadState.refresh is LoadState.Loading,
+            pullRefreshState,
+            Modifier.align(Alignment.TopCenter)
+        )
     }
 }

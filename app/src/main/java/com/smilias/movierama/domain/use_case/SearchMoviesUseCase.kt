@@ -7,7 +7,6 @@ import com.smilias.movierama.domain.model.Movie
 import com.smilias.movierama.domain.repository.MovieRepository
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.debounce
 import javax.inject.Inject
 
 class SearchMoviesUseCase @Inject constructor(
@@ -15,6 +14,6 @@ class SearchMoviesUseCase @Inject constructor(
 ) {
 
     operator fun invoke(query: String): Flow<PagingData<Movie>> {
-        return movieRepository.searchMovies(query).debounce(300L)
+        return movieRepository.searchMovies(query)
     }
 }
