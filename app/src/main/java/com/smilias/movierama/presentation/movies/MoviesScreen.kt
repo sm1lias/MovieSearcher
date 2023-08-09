@@ -49,9 +49,7 @@ internal fun MoviesRoute(
     MoviesScreen(
         onMovieClick = onMovieClick,
         onShowSnackbar = onShowSnackbar,
-        onSearchValueChange = viewModel::onSearchTextChange,
-        onFavoriteClick = viewModel::onFavoriteClick,
-        onClearClick = viewModel::onClearClick,
+        onEvent = viewModel::onEvent,
         state = state,
         modifier = modifier,
     )
@@ -64,9 +62,7 @@ internal fun MoviesScreen(
     onMovieClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     modifier: Modifier = Modifier,
-    onSearchValueChange: (String) -> Unit,
-    onClearClick: () -> Unit,
-    onFavoriteClick: (Int) -> Unit,
+    onEvent: (MoviesScreenEvent) -> Unit,
     state: MoviesScreenState
 ) {
     val dimens = LocalSpacing.current
@@ -103,7 +99,7 @@ internal fun MoviesScreen(
             SearchBar(
                 modifier = Modifier.fillMaxWidth(),
                 query = state.searchText,
-                onQueryChange = onSearchValueChange,
+                onQueryChange = { onEvent(MoviesScreenEvent.OnSearchTextChange(it)) },
                 onSearch = {},
                 active = false,
                 onActiveChange = {},
@@ -119,7 +115,7 @@ internal fun MoviesScreen(
                             imageVector = Icons.Rounded.Clear,
                             contentDescription = "Clear icon",
                             modifier = Modifier.clickable {
-                                onClearClick()
+                                onEvent(MoviesScreenEvent.OnClearClick)
                             }
                         )
                     }
@@ -138,7 +134,7 @@ internal fun MoviesScreen(
                         MovieItem(
                             movie = movie,
                             onMovieClick,
-                            onFavoriteClick,
+                            { onEvent(MoviesScreenEvent.OnFavoriteClick(it)) },
                             state.favoriteMovies
                         )
                     }

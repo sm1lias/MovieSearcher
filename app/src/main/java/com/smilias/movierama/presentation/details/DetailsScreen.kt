@@ -71,7 +71,7 @@ internal fun DetailsRoute(
     state.movie?.let {
         DetailsScreen(
             onBackPressed = onBackPressed,
-            onFavoriteClick = viewModel::onFavoriteClick,
+            onEvent = viewModel::onEvent,
             onSimilarMovieClick = onSimilarMovieClick,
             modifier = modifier,
             favoriteMovies = favoriteMovies,
@@ -83,7 +83,7 @@ internal fun DetailsRoute(
 @Composable
 internal fun DetailsScreen(
     onBackPressed: () -> Unit,
-    onFavoriteClick: (Int) -> Unit,
+    onEvent: (DetailsScreenEvent) -> Unit,
     onSimilarMovieClick: (Int) -> Unit,
     favoriteMovies: Set<String>,
     state: DetailsScreenState,
@@ -154,7 +154,7 @@ internal fun DetailsScreen(
                         imageVector = if (favoriteMovies.contains(state.movie.id.toString())) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                         contentDescription = "Favorite icon",
                         modifier = Modifier
-                            .clickable { onFavoriteClick(state.movie.id) },
+                            .clickable { onEvent(DetailsScreenEvent.OnFavoriteClick(state.movie.id)) },
                         tint = if (favoriteMovies.contains(state.movie.id.toString())) Color.Red else Color.Gray
                     )
                 }
@@ -280,7 +280,7 @@ fun DetailsScreenPreview() {
 
     DetailsScreen(
         onBackPressed = {},
-        onFavoriteClick = {},
+        onEvent = {},
         onSimilarMovieClick = {},
         favoriteMovies = emptySet(),
         state = state

@@ -48,7 +48,13 @@ class DetailsScreenViewModel @Inject constructor(
         }
     }
 
-    fun onFavoriteClick(id: Int) {
+    fun onEvent(event: DetailsScreenEvent) {
+        when (event) {
+            is DetailsScreenEvent.OnFavoriteClick -> onFavoriteClick(event.id)
+        }
+    }
+
+    private fun onFavoriteClick(id: Int) {
         val set: Set<String> = if (favoritesMovies.value.contains(id.toString())) {
             favoritesMovies.value.minus(id.toString())
         } else {
@@ -56,4 +62,8 @@ class DetailsScreenViewModel @Inject constructor(
         }
         viewModelScope.launch { prefs.saveFavorites(set) }
     }
+}
+
+sealed class DetailsScreenEvent {
+    data class OnFavoriteClick(val id: Int) : DetailsScreenEvent()
 }

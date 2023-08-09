@@ -40,7 +40,7 @@ class MoviesScreenViewModel @Inject constructor(
         onSearchTextChange("")
     }
 
-    fun onSearchTextChange(text: String) {
+    private fun onSearchTextChange(text: String) {
         _state.value = state.value.copy(searchText = text)
         job?.cancel()
         job = viewModelScope.launch {
@@ -55,11 +55,19 @@ class MoviesScreenViewModel @Inject constructor(
         }
     }
 
-    fun onClearClick() {
+    fun onEvent(event: MoviesScreenEvent) {
+        when (event) {
+            MoviesScreenEvent.OnClearClick -> onClearClick()
+            is MoviesScreenEvent.OnFavoriteClick -> onFavoriteClick(event.id)
+            is MoviesScreenEvent.OnSearchTextChange -> onSearchTextChange(event.text)
+        }
+    }
+
+    private fun onClearClick() {
         _state.value = _state.value.copy(searchText = "")
     }
 
-    fun onFavoriteClick(id: Int) {
+    private fun onFavoriteClick(id: Int) {
         val set: Set<String> = if (_state.value.favoriteMovies.contains(id.toString())) {
             _state.value.favoriteMovies.minus(id.toString())
         } else {
@@ -67,4 +75,10 @@ class MoviesScreenViewModel @Inject constructor(
         }
         viewModelScope.launch { prefs.saveFavorites(set) }
     }
+}
+
+sealed class MoviesScreenEvent {
+    object OnClearClick : MoviesScreenEvent()
+    data class OnFavoriteClick(val id: Int) : MoviesScreenEvent()
+    data class OnSearchTextChange(val text: String) : MoviesScreenEvent()
 }
