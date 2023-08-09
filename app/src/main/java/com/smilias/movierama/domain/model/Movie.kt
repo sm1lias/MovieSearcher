@@ -14,6 +14,7 @@ data class Movie(
     val overview: String? = null,
     val reviews: List<Review>? = null,
     val similarMovies: List<Movie>? = null,
+    val videoUrl: String? = null,
     val genre: String? = null,
     val favorite: Boolean = false
 )

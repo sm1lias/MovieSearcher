@@ -41,9 +41,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import com.smilias.movierama.R
 import com.smilias.movierama.domain.model.Movie
 import com.smilias.movierama.domain.model.Review
@@ -237,6 +241,20 @@ internal fun DetailsScreen(
                             Text(text = review.review)
                             Spacer(modifier = Modifier.height(dimens.spaceMedium))
                         }
+                    }
+                    videoUrl?.let { url ->
+                        AndroidView(modifier = modifier.fillMaxWidth(), factory = { context ->
+                            val view = YouTubePlayerView(context)
+                            view.addYouTubePlayerListener(
+                                object : AbstractYouTubePlayerListener() {
+                                    override fun onReady(youTubePlayer: YouTubePlayer) {
+                                        super.onReady(youTubePlayer)
+                                        youTubePlayer.cueVideo(url, 0f)
+                                    }
+                                }
+                            )
+                            view
+                        })
                     }
                 }
             }

@@ -3,6 +3,7 @@ package com.smilias.movierama.data.remote
 import com.smilias.movierama.data.remote.dto.MovieDto
 import com.smilias.movierama.data.remote.dto.MovieListDto
 import com.smilias.movierama.data.remote.dto.ReviewListDto
+import com.smilias.movierama.data.remote.dto.VideoListDto
 import com.smilias.movierama.util.Constants.API_KEY
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -35,6 +36,10 @@ interface MovieApi {
     @Headers("Authorization: Bearer $API_KEY")
     @GET("movie/{movie_id}/reviews")
     suspend fun getMovieReviews(@Path("movie_id") movieId: String): ReviewListDto
+
+    @Headers("Authorization: Bearer $API_KEY")
+    @GET("movie/{movie_id}/videos")
+    suspend fun getMovieVideos(@Path("movie_id") movieId: String): VideoListDto
 
 
 }

@@ -20,6 +20,8 @@ data class MovieDto(
     @SerialName("overview")
     val overview: String? = null,
     @SerialName("credits")
-    val credits: CreditsDto? = null
+    val credits: CreditsDto? = null,
+    @SerialName("videos")
+    val videos: VideoListDto? = null
 
 )

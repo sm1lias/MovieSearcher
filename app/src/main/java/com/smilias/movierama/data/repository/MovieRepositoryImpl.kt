@@ -53,8 +53,13 @@ class MovieRepositoryImpl @Inject constructor(
             } catch (e: Exception) {
                 null
             }
+            val videoListDto = try {
+                async { movieApi.getMovieVideos(id) }.await()
+            } catch (e: Exception) {
+                null
+            }
 
-            Resource.Success(movieDto.toMovie(reviewListDto, similarMoviesDto))
+            Resource.Success(movieDto.toMovie(reviewListDto, similarMoviesDto, videoListDto))
         }
     }
 }
