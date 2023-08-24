@@ -37,6 +37,9 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getMovie(id: String): Resource<Movie> {
+        //movieDto is mandatory is it crashes we want to inform the user
+        //but for the other three we show them only if everything go ok
+        //also we want to make all api calls in parallel
         return coroutineScope {
             val movieDto = try {
                 async { movieApi.getMovieWithCredits(id) }.await()
