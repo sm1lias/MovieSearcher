@@ -14,6 +14,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.supervisorScope
 import javax.inject.Inject
 
 @OptIn(FlowPreview::class)
@@ -40,11 +41,11 @@ class MovieRepositoryImpl @Inject constructor(
         //movieDto is mandatory is it crashes we want to inform the user
         //but for the other three we show them only if everything go ok
         //also we want to make all api calls in parallel
-        return coroutineScope {
+        return supervisorScope {
             val movieDto = try {
                 async { movieApi.getMovieWithCredits(id) }.await()
             } catch (e: Exception) {
-                return@coroutineScope Resource.Error("No internet connection")
+                return@supervisorScope Resource.Error("No internet connection")
             }
             val reviewListDto = try {
                 async { movieApi.getMovieReviews(id) }.await()
