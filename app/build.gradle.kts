@@ -106,5 +106,8 @@ android {
 
         implementation("io.coil-kt.coil3:coil:3.0.0-rc01")
         implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0-rc01")
+
+        //swipe refresh layout
+        implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     }
 }

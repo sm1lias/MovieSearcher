@@ -1,0 +1,10 @@
+<resources>
+    <dimen name="extra_small">4dp</dimen>
+    <dimen name="small">8dp</dimen>
+    <dimen name="medium">12dp</dimen>
+
+    <dimen name="text_small">8sp</dimen>
+    <dimen name="text_medium">12sp</dimen>
+    <dimen name="text_large">16sp</dimen>
+    <dimen name="text_extra_large">24sp</dimen>
+</resources>

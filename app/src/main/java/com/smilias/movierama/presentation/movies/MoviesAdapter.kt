@@ -2,6 +2,7 @@ package com.smilias.movierama.presentation.movies
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -9,8 +10,11 @@ import coil.load
 import com.smilias.movierama.R
 import com.smilias.movierama.databinding.MovieItemBinding
 import com.smilias.movierama.domain.model.Movie
+import com.smilias.movierama.presentation.common.setRating
 import com.smilias.movierama.util.Constants.IMAGE_URL_780
 import com.smilias.movierama.util.Util.toLowercaseAndCapitalize
+import com.smilias.movierama.util.Util.toMyFormattedString
+import java.time.LocalDate
 
 class MoviesAdapter(private val onItemClick: (Int) -> Unit,
     private val onFavoriteClick: (Int) -> Unit,
@@ -77,16 +81,28 @@ class MoviesAdapter(private val onItemClick: (Int) -> Unit,
             binding.apply {
                 name.text = movie.title
                 imageView.load(data = (IMAGE_URL_780 + movie.backgroundPath))
-                movie.releaseDate?.let { rlDate ->
-                    date.text = "${rlDate.dayOfMonth} ${
-                        rlDate.month.toString().toLowercaseAndCapitalize()
-                    } ${rlDate.year}"
+                ratingBar.ratingBarLayout.setRating(movie.rating / 2)
+                setReleaseDate(movie)
+                setFavoriteIcon(favoriteMovies, movie)
+            }
+        }
+
+        private fun MovieItemBinding.setFavoriteIcon(
+            favoriteMovies: Set<String>,
+            movie: Movie
+        ) {
+            favorite.setImageResource(
+                if (favoriteMovies.contains(movie.id.toString())) {
+                    R.drawable.favorite
+                } else {
+                    R.drawable.unfavorite
                 }
-                    favorite.setImageResource(if (favoriteMovies.contains(movie.id.toString())) {
-                        R.drawable.favorite
-                    } else {
-                        R.drawable.unfavorite
-                    })
+            )
+        }
+
+        private fun MovieItemBinding.setReleaseDate(movie: Movie) {
+            movie.releaseDate?.let { rlDate ->
+                date.text = rlDate.toMyFormattedString()
             }
         }
 
