@@ -1,17 +1,26 @@
 package com.smilias.movierama.presentation.movies
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import com.smilias.movierama.R
 import com.smilias.movierama.databinding.MovieItemBinding
 import com.smilias.movierama.domain.model.Movie
 import com.smilias.movierama.util.Constants.IMAGE_URL_780
+import com.smilias.movierama.util.Util.toLowercaseAndCapitalize
 
-class MoviesAdapter(private val onItemClick: (Int) -> Unit): PagingDataAdapter<Movie, MoviesAdapter.MoviesViewHolder>(REPO_COMPARATOR) {
+class MoviesAdapter(private val onItemClick: (Int) -> Unit,
+    private val onFavoriteClick: (Int) -> Unit,
+    ): PagingDataAdapter<Movie, MoviesAdapter.MoviesViewHolder>(REPO_COMPARATOR) {
+
+    var favoriteMovies: Set<String> = emptySet()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
     companion object {
         private val REPO_COMPARATOR = object : DiffUtil.ItemCallback<Movie>() {
@@ -26,7 +35,7 @@ class MoviesAdapter(private val onItemClick: (Int) -> Unit): PagingDataAdapter<M
 
     override fun onBindViewHolder(holder: MoviesViewHolder, position: Int) {
         getItem(position)?.let {
-            holder.bind(it)
+            holder.bind(it, favoriteMovies)
         }
     }
 
@@ -37,27 +46,47 @@ class MoviesAdapter(private val onItemClick: (Int) -> Unit): PagingDataAdapter<M
             parent,
             false
         )
-        return MoviesViewHolder(binding) {
+        return MoviesViewHolder(binding, {
             onItemClick(it)
-        }
+        }, {onFavoriteClick(it)})
     }
 
     class MoviesViewHolder(
         private val binding: MovieItemBinding,
-        onItemClicked: (Int) -> Unit
+        onItemClicked: (Int) -> Unit,
+        onFavoriteClick: (Int) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
+        private var movieId: Int? = null
 
         init {
-            binding.root.setOnClickListener {
-                onItemClicked(adapterPosition)
+            binding.imageView.setOnClickListener {
+                movieId?.let {
+                    onItemClicked(it)
+                }
+            }
+            binding.favorite.setOnClickListener{
+                movieId?.let {
+                    onFavoriteClick(it)
+                }
             }
         }
 
-        fun bind(movie: Movie) {
+        fun bind(movie: Movie,favoriteMovies: Set<String>) {
+            movieId = movie.id
 
             binding.apply {
                 name.text = movie.title
-                imageView.load(IMAGE_URL_780 + movie.backgroundPath)
+                imageView.load(data = (IMAGE_URL_780 + movie.backgroundPath))
+                movie.releaseDate?.let { rlDate ->
+                    date.text = "${rlDate.dayOfMonth} ${
+                        rlDate.month.toString().toLowercaseAndCapitalize()
+                    } ${rlDate.year}"
+                }
+                    favorite.setImageResource(if (favoriteMovies.contains(movie.id.toString())) {
+                        R.drawable.favorite
+                    } else {
+                        R.drawable.unfavorite
+                    })
             }
         }
 
