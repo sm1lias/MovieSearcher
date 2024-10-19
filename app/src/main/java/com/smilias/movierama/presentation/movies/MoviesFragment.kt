@@ -7,9 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.smilias.movierama.R
 import com.smilias.movierama.databinding.FragmentMoviesBinding
@@ -49,25 +51,37 @@ class MoviesFragment : BaseFragment<FragmentMoviesBinding>() {
             adapter = moviesAdapter
         }
 
+        initializeFlowCollectors()
+        observeUI()
+    }
+
+    private fun initializeFlowCollectors() {
         lifecycleScope.launch {
-            viewModel.state.collect { state -> handle(state)
-                moviesAdapter.favoriteMovies = state.favoriteMovies}
+            viewModel.state.collect { state ->
+                handle(state)
+                launch {
+                    state.movieList.distinctUntilChanged().collectLatest {
+                        moviesAdapter.submitData(it)
+                    }
+                }
+
+            }
         }
         lifecycleScope.launch {
-            moviesAdapter.loadStateFlow.collect{loadState ->
-                if (loadState.refresh is LoadState.Error){
+            moviesAdapter.loadStateFlow.collect { loadState ->
+                binding.swipeRefresh.isRefreshing = loadState.refresh is LoadState.Loading
+                if (loadState.refresh is LoadState.Error) {
                     val message = (loadState.refresh as LoadState.Error).error.message
                     message?.let {
                         showSnackbar(it)
                     }
                 }
-                if (loadState.append is LoadState.Error){
+                if (loadState.append is LoadState.Error) {
                     delay(Duration.ofMillis(2000))
                     moviesAdapter.retry()
                 }
             }
         }
-        observeUI()
     }
 
     private fun observeUI() {
@@ -84,16 +98,11 @@ class MoviesFragment : BaseFragment<FragmentMoviesBinding>() {
         })
         binding.swipeRefresh.apply {
             setOnRefreshListener { moviesAdapter.refresh()
-                isRefreshing = false
             }
         }
     }
 
     private fun handle(state: MoviesScreenState) {
-        lifecycleScope.launch {
-            state.movieList.distinctUntilChanged().collectLatest {
-                moviesAdapter.submitData(it)
-            }
-        }
+        moviesAdapter.favoriteMovies = state.favoriteMovies
     }
 }

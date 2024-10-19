@@ -19,7 +19,7 @@ fun MovieDto.toMovie(
         backgroundPath = backgroundPath,
         releaseDate = try {
             LocalDate.parse(releaseDate)
-        } catch (e: DateTimeParseException) {
+        } catch (e: Exception) {
             null
         },
         title = title,

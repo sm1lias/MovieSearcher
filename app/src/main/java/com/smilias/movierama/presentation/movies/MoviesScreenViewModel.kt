@@ -47,10 +47,10 @@ class MoviesScreenViewModel @Inject constructor(
             delay(300)
             if (text.isBlank()) {
                 _state.value =
-                    state.value.copy(movieList = getPopularMoviesUseCase().cachedIn(this))
+                    state.value.copy(movieList = getPopularMoviesUseCase().cachedIn(viewModelScope))
             } else {
                 _state.value =
-                    state.value.copy(movieList = searchMoviesUseCase(text).cachedIn(this))
+                    state.value.copy(movieList = searchMoviesUseCase(text).cachedIn(viewModelScope))
             }
         }
     }

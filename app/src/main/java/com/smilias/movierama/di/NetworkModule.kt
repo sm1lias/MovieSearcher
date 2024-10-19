@@ -48,12 +48,12 @@ object NetworkModule {
         return retrofit.create(MovieApi::class.java)
     }
 
-    @Provides
-    @Singleton
-    fun provideMoviePager(movieApi: MovieApi): Pager<Int, Movie> {
-        return Pager(
-            config = PagingConfig(pageSize = 20),
-            pagingSourceFactory = {PopularMoviesPagingSource(movieApi)}
-        )
-    }
+//    @Provides
+//    @Singleton
+//    fun provideMoviePager(movieApi: MovieApi): Pager<Int, Movie> {
+//        return Pager(
+//            config = PagingConfig(pageSize = 20, enablePlaceholders = true),
+//            pagingSourceFactory = {PopularMoviesPagingSource(movieApi)}
+//        )
+//    }
 }

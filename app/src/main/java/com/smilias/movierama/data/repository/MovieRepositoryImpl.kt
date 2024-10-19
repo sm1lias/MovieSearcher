@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.supervisorScope
 import javax.inject.Inject
 
-@OptIn(FlowPreview::class)
 class MovieRepositoryImpl @Inject constructor(
     private val movieApi: MovieApi
 ) : MovieRepository {
@@ -25,45 +24,41 @@ class MovieRepositoryImpl @Inject constructor(
 
     override fun getPopularMovies(): Flow<PagingData<Movie>> {
         return Pager(
-            config = PagingConfig(pageSize = 20),
+            config = PagingConfig(pageSize = 20, enablePlaceholders = true),
             pagingSourceFactory = { PopularMoviesPagingSource(movieApi) }
         ).flow
     }
 
     override fun searchMovies(query: String): Flow<PagingData<Movie>> {
         return Pager(
-            config = PagingConfig(pageSize = 20),
+            config = PagingConfig(pageSize = 20, enablePlaceholders = true),
             pagingSourceFactory = { SearchMoviesPagingSource(movieApi, query) }
         ).flow
     }
 
     override suspend fun getMovie(id: String): Resource<Movie> {
-        //movieDto is mandatory is it crashes we want to inform the user
-        //but for the other three we show them only if everything go ok
-        //also we want to make all api calls in parallel
         return supervisorScope {
             val movieDto = try {
                 async { movieApi.getMovieWithCredits(id) }.await()
             } catch (e: Exception) {
                 return@supervisorScope Resource.Error("No internet connection")
             }
-            val reviewListDto = try {
-                async { movieApi.getMovieReviews(id) }.await()
-            } catch (e: Exception) {
-                null
-            }
-            val similarMoviesDto = try {
-                async { movieApi.getSimilarMovies(id) }.await()
-            } catch (e: Exception) {
-                null
-            }
-            val videoListDto = try {
-                async { movieApi.getMovieVideos(id) }.await()
-            } catch (e: Exception) {
-                null
-            }
+            val reviewListDto =
+                async { fetchWithCatch { movieApi.getMovieReviews(id) } }.await()
+            val similarMoviesDto =
+                async { fetchWithCatch { movieApi.getSimilarMovies(id) } }.await()
+            val videoListDto =
+                async { fetchWithCatch { movieApi.getMovieVideos(id) } }.await()
 
             Resource.Success(movieDto.toMovie(reviewListDto, similarMoviesDto, videoListDto))
+        }
+    }
+
+    private suspend fun <T> fetchWithCatch(fetch: suspend () -> T): T? {
+        return try {
+            fetch()
+        } catch (e: Exception) {
+            null
         }
     }
 }

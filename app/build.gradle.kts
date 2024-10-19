@@ -10,6 +10,10 @@ android {
     namespace = "com.smilias.movierama"
     compileSdk = 34
 
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
+
     defaultConfig {
         applicationId = "com.smilias.movierama"
         minSdk = 26
@@ -109,5 +113,13 @@ android {
 
         //swipe refresh layout
         implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+        testImplementation ("app.cash.turbine:turbine:1.0.0")
+
+        testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.2") // For testing coroutines
+
+        testImplementation ("org.mockito:mockito-core:5.0.0") // Mockito for mocking
+        testImplementation ("org.mockito.kotlin:mockito-kotlin:5.0.0") // Kotlin extensions for Mockito
+
     }
 }

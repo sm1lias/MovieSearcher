@@ -32,7 +32,7 @@ class MoviesAdapter(private val onItemClick: (Int) -> Unit,
                 oldItem.id == newItem.id
 
             override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean =
-                oldItem.id == newItem.id
+                oldItem == newItem
         }
     }
 
@@ -107,4 +107,5 @@ class MoviesAdapter(private val onItemClick: (Int) -> Unit,
         }
 
     }
+
 }
