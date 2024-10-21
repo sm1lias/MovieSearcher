@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MovieRama"
+rootProject.name = "MovieSearcher"
 include(":app")
  
